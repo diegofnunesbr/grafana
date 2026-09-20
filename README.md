@@ -56,6 +56,17 @@ kubectl -n observability port-forward svc/grafana 3000:80
 
 Login com o usuário/senha do SealedSecret gerado acima.
 
+## Verificar
+
+```bash
+kubectl -n observability port-forward svc/grafana 13000:80 &
+curl -s -u admin:SUA_SENHA http://localhost:13000/api/health
+curl -s -u admin:SUA_SENHA http://localhost:13000/api/datasources
+```
+
+O `/api/health` deve responder `"database":"ok"`, e `/api/datasources`
+deve listar o datasource `Mimir` com `"isDefault":true`.
+
 ## Remover o Grafana
 
 ```bash
