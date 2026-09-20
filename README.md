@@ -2,8 +2,8 @@
 
 Instalação do **Grafana** via chart oficial (`grafana/grafana`), usando uma
 Application multi-source do Argo CD: o chart vem direto do repositório
-Helm da Grafana, e os `values.yaml` (datasource do Mimir, persistência,
-etc.) vêm deste repositório.
+Helm da Grafana, e os `values.yaml` (datasource do Mimir, dashboards,
+persistência, etc.) vêm deste repositório.
 
 ## Pré-requisitos
 
@@ -63,6 +63,36 @@ expor via NodePort, dá pra usar port-forward em vez disso:
 ```bash
 kubectl -n observability port-forward svc/grafana 3000:80
 ```
+
+## Dashboards
+
+Provisionados via `values.yaml` (chave `dashboards`), não criados na UI -
+é o padrão adotado aqui: um dashboard só existe se estiver commitado no
+repo, senão some no próximo redeploy do pod. Pra adicionar um novo:
+
+```yaml
+dashboards:
+  default:
+    nome-do-dashboard:
+      gnetId: <id do grafana.com/grafana/dashboards>
+      revision: <revisão>
+      datasource: Mimir
+```
+
+Pra um dashboard rascunhado direto na UI: depois de pronto, exporte o JSON
+(`Dashboard settings → JSON Model`) e migre pra `dashboards.default.<nome>.json`
+no `values.yaml`, em vez de deixar só na UI.
+
+## Troubleshooting: pod trava em `Init:Error` (init-chown-data)
+
+Acontece num redeploy de um Grafana que já tem dados na PVC: o container
+`init-chown-data` roda como root mas sem a capability `CAP_DAC_OVERRIDE`
+(só tem `CHOWN`), e falha ao tentar recursar em `pdf/`, `csv/`, `png/`
+(que já existem com modo `700`, criados pelo próprio Grafana). Na
+primeira subida (PVC vazia) esse container funciona normalmente; só
+quebra depois. Como a dono já fica correta desde a primeira vez, esse
+container é redundante - por isso `values.yaml` já sobe com
+`initChownData.enabled: false`.
 
 ## Verificar
 
