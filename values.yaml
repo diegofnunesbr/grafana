@@ -2,6 +2,9 @@ persistence:
   enabled: true
   size: 2Gi
 
+initChownData:
+  enabled: false
+
 service:
   type: NodePort
   nodePort: 30300
