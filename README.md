@@ -50,11 +50,19 @@ kubectl apply -f applications/argocd.grafana.yaml
 
 ## Acessar
 
+O Service é `NodePort` fixo na porta `30300`, igual Mimir (`30900`) e
+Rundeck (`30440`) - acesse direto em:
+
+```text
+http://<ip-do-node-k0s>:30300
+```
+
+Login com o usuário/senha do SealedSecret gerado acima. Se preferir não
+expor via NodePort, dá pra usar port-forward em vez disso:
+
 ```bash
 kubectl -n observability port-forward svc/grafana 3000:80
 ```
-
-Login com o usuário/senha do SealedSecret gerado acima.
 
 ## Verificar
 
