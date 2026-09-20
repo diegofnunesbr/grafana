@@ -2,6 +2,10 @@ persistence:
   enabled: true
   size: 2Gi
 
+service:
+  type: NodePort
+  nodePort: 30300
+
 admin:
   existingSecret: grafana-admin-secret
   userKey: admin-user
