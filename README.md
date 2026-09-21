@@ -48,6 +48,11 @@ cd grafana
 kubectl apply -f applications/argocd.grafana.yaml
 ```
 
+**Lembrete:** a Application aponta pro GitHub (`repoURL`), não pro seu
+clone local - qualquer mudança em `values.yaml` só tem efeito depois de
+`git push` (e um sync, automático ou forçado via
+`kubectl -n argocd patch application grafana --type merge -p '{"operation":{"sync":{}}}'`).
+
 ## Acessar
 
 O Service é `NodePort` fixo na porta `30300`, igual Mimir (`30900`) e
