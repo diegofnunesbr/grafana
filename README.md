@@ -10,7 +10,10 @@ persistência, etc.) vêm deste repositório.
 - `Kubernetes` instalado
 - `kubectl` e `kubeseal` instalados
 - ArgoCD instalado (ver repositório `argocd`)
-- `Sealed Secrets` instalado
+- `Sealed Secrets` e `cert-manager` instalados (via `core-config` do
+  repositório `argocd` e repositório `cert-manager`)
+- `ingress-nginx` instalado (via `core-config` do repositório `argocd`)
+- DNS `grafana.diegofnunesbr.com` apontando pro node (ver repositório `dns`)
 - Repositório `mimir` já instalado (o datasource padrão aponta pra ele)
 
 ## Estrutura do repositório
@@ -55,15 +58,13 @@ clone local - qualquer mudança em `values.yaml` só tem efeito depois de
 
 ## Acessar
 
-O Service é `NodePort` fixo na porta `30300`, igual Mimir (`30900`) e
-Rundeck (`30440`) - acesse direto em:
-
 ```text
-http://<ip-do-node-k0s>:30300
+https://grafana.diegofnunesbr.com
 ```
 
-Login com o usuário/senha do SealedSecret gerado acima. Se preferir não
-expor via NodePort, dá pra usar port-forward em vez disso:
+Login com o usuário/senha do SealedSecret gerado acima. Certificado real
+(Let's Encrypt, renovado automaticamente pelo cert-manager) - sem porta
+na URL. Se precisar de acesso direto sem depender do Ingress/DNS (debug):
 
 ```bash
 kubectl -n observability port-forward svc/grafana 3000:80
