@@ -30,7 +30,7 @@ grafana/
 
 ```bash
 printf '%s' 'SUA_SENHA_AQUI' > /tmp/admin-password
-kubectl create secret generic grafana-admin-secret -n observability \
+kubectl create secret generic grafana-admin-secret -n grafana \
   --from-literal=admin-user=admin \
   --from-file=admin-password=/tmp/admin-password \
   --dry-run=client -o yaml > unsealed.secret.yaml
@@ -39,9 +39,9 @@ rm -f /tmp/admin-password unsealed.secret.yaml
 kubectl apply -f sealed.secret.yaml
 ```
 
-O namespace `observability` só existe depois que o Mimir (ou essa própria
-Application, via `CreateNamespace=true`) for aplicado - se rodar antes,
-crie o namespace manualmente primeiro.
+O namespace `grafana` só existe depois que essa própria Application (via
+`CreateNamespace=true`) for aplicado - se rodar antes, crie o namespace
+manualmente primeiro.
 
 ## Instalar o Grafana
 
@@ -67,7 +67,7 @@ Login com o usuário/senha do SealedSecret gerado acima. Certificado real
 na URL. Se precisar de acesso direto sem depender do Ingress/DNS (debug):
 
 ```bash
-kubectl -n observability port-forward svc/grafana 3000:80
+kubectl -n grafana port-forward svc/grafana 3000:80
 ```
 
 ## Dashboards
@@ -103,7 +103,7 @@ container é redundante - por isso `values.yaml` já sobe com
 ## Verificar
 
 ```bash
-kubectl -n observability port-forward svc/grafana 13000:80 &
+kubectl -n grafana port-forward svc/grafana 13000:80 &
 curl -s -u admin:SUA_SENHA http://localhost:13000/api/health
 curl -s -u admin:SUA_SENHA http://localhost:13000/api/datasources
 ```

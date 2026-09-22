@@ -36,7 +36,7 @@ datasources:
       - name: Mimir
         type: prometheus
         access: proxy
-        url: http://mimir.observability.svc:8080/prometheus
+        url: http://mimir.mimir.svc:8080/prometheus
         isDefault: true
 
 dashboardProviders:
