@@ -2,7 +2,7 @@
 
 Instalação do **Grafana** via chart oficial (`grafana/grafana`), usando uma
 Application multi-source do Argo CD: o chart vem direto do repositório
-Helm da Grafana, e os `values.yaml` (datasource do Mimir, dashboards,
+Helm da Grafana, e os `values.yaml` (datasource do Mimir,
 persistência, etc.) vêm deste repositório.
 
 ## Pré-requisitos
