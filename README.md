@@ -12,9 +12,10 @@ persistência, etc.) vêm deste repositório.
 - ArgoCD instalado (ver repositório `argocd`)
 - `Sealed Secrets` e `cert-manager` instalados (via `core-config` do
   repositório `argocd` e repositório `cert-manager`)
-- `ingress-nginx` instalado (via `core-config` do repositório `argocd`)
+- `ingress-nginx` instalado (repositório `ingress-nginx`)
 - DNS `grafana.diegofnunesbr.com` apontando pro node (ver repositório `dns`)
 - Repositório `mimir` já instalado (o datasource padrão aponta pra ele)
+- Acesso `ssh` à `vm-ubuntu` (usado pelo `change-admin-password.sh`)
 
 ## Estrutura do repositório
 
@@ -22,26 +23,28 @@ persistência, etc.) vêm deste repositório.
 grafana/
 ├── applications/
 │   └── argocd.grafana.yaml     # Application multi-source do Argo CD
+├── secrets/
+│   └── grafana-admin-secret.sealed.yaml  # senha do admin (selada, aplicada pelo Argo CD)
+├── change-admin-password.sh    # troca a senha do admin
 ├── values.yaml                 # values do chart oficial grafana/grafana
 └── README.md
 ```
 
-## Gerar o SealedSecret grafana-admin-secret
+## Senha do admin
+
+A senha fica selada em `secrets/grafana-admin-secret.sealed.yaml`, que a
+própria Application aplica (terceira source). Pra trocar (ou num cluster
+novo, com outra chave do Sealed Secrets), rode daqui do seu clone:
 
 ```bash
-printf '%s' 'SUA_SENHA_AQUI' > /tmp/admin-password
-kubectl create secret generic grafana-admin-secret -n grafana \
-  --from-literal=admin-user=admin \
-  --from-file=admin-password=/tmp/admin-password \
-  --dry-run=client -o yaml > unsealed.secret.yaml
-kubeseal --scope cluster-wide --format yaml < unsealed.secret.yaml > sealed.secret.yaml
-rm -f /tmp/admin-password unsealed.secret.yaml
-kubectl apply -f sealed.secret.yaml
+./change-admin-password.sh
 ```
 
-O namespace `grafana` só existe depois que essa própria Application (via
-`CreateNamespace=true`) for aplicado - se rodar antes, crie o namespace
-manualmente primeiro.
+Ele pede a senha sem ecoar, sela, faz commit + push e aplica a senha no
+Grafana rodando (`grafana cli admin reset-admin-password` dentro do pod).
+Esse último passo é necessário porque o Grafana só lê a senha do secret na
+**primeira** subida (quando cria o banco); depois disso ela vive no banco
+dele, e mudar só o secret não muda o login.
 
 ## Instalar o Grafana
 
@@ -62,7 +65,7 @@ clone local - qualquer mudança em `values.yaml` só tem efeito depois de
 https://grafana.diegofnunesbr.com
 ```
 
-Login com o usuário/senha do SealedSecret gerado acima. Certificado real
+Login `admin` + senha da seção "Senha do admin". Certificado real
 (Let's Encrypt, renovado automaticamente pelo cert-manager) - sem porta
 na URL. Se precisar de acesso direto sem depender do Ingress/DNS (debug):
 
