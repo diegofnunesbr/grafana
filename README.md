@@ -15,7 +15,8 @@ persistência, etc.) vêm deste repositório.
 - `ingress-nginx` instalado (repositório `ingress-nginx`)
 - DNS `grafana.diegofnunesbr.com` apontando pro node (ver repositório `dns`)
 - Repositório `mimir` já instalado (o datasource padrão aponta pra ele)
-- Acesso `ssh` à `vm-ubuntu` (usado pelo `change-admin-password.sh`)
+- Contexto `k0s` no seu kubeconfig (ver README do repositório `argocd`,
+  seção "Acessar o cluster de fora da VM"), usado pelo `change-admin-password.sh`
 
 ## Estrutura do repositório
 
