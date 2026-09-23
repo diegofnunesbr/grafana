@@ -38,3 +38,12 @@ datasources:
         access: proxy
         url: http://mimir.mimir.svc:8080/prometheus
         isDefault: true
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: cleanup
+        type: file
+        options:
+          path: /etc/grafana/provisioning/dashboards
