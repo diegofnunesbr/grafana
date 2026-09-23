@@ -76,22 +76,19 @@ kubectl -n grafana port-forward svc/grafana 3000:80
 
 ## Dashboards
 
-Provisionados via `values.yaml` (chave `dashboards`), não criados na UI -
-é o padrão adotado aqui: um dashboard só existe se estiver commitado no
-repo, senão some no próximo redeploy do pod. Pra adicionar um novo:
+Nenhum dashboard vem pronto: você cria (ou importa) pela própria interface.
+Só o datasource `Mimir` é provisionado pelo `values.yaml`.
 
-```yaml
-dashboards:
-  default:
-    nome-do-dashboard:
-      gnetId: <id do grafana.com/grafana/dashboards>
-      revision: <revisão>
-      datasource: Mimir
-```
+Pra importar um dashboard da comunidade, como o Node Exporter Full:
+`Dashboards → New → Import`, digite o ID (`1860` pro Node Exporter Full),
+clique em `Load`, escolha o datasource `Mimir` e `Import`.
 
-Pra um dashboard rascunhado direto na UI: depois de pronto, exporte o JSON
-(`Dashboard settings → JSON Model`) e migre pra `dashboards.default.<nome>.json`
-no `values.yaml`, em vez de deixar só na UI.
+Os dashboards ficam no banco do Grafana, dentro da PVC (`persistence`),
+então sobrevivem a restart, redeploy e atualização do chart. **Eles não
+ficam no git**: numa reinstalação do cluster do zero (ou se a PVC for
+apagada), somem. Pra guardar um, exporte o JSON (`Export → Export as
+JSON`) e salve em algum lugar; pra restaurar, `Dashboards → New →
+Import` e cole o JSON.
 
 ## Troubleshooting: pod trava em `Init:Error` (init-chown-data)
 
