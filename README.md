@@ -107,9 +107,12 @@ container é redundante - por isso `values.yaml` já sobe com
 
 ```bash
 kubectl -n grafana port-forward svc/grafana 13000:80 &
-curl -s -u admin:SUA_SENHA http://localhost:13000/api/health
-curl -s -u admin:SUA_SENHA http://localhost:13000/api/datasources
+curl -s -u admin http://localhost:13000/api/health
+curl -s -u admin http://localhost:13000/api/datasources
 ```
+
+Com `-u admin` (sem `:senha`) o `curl` pede a senha interativamente, então
+ela não fica no histórico do shell.
 
 O `/api/health` deve responder `"database":"ok"`, e `/api/datasources`
 deve listar o datasource `Mimir` com `"isDefault":true`.
