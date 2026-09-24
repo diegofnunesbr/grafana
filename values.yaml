@@ -27,7 +27,7 @@ grafana.ini:
     enabled: true
     name: Keycloak
     client_id: grafana
-    client_secret: $GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+    client_secret: ${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}
     scopes: openid profile email
     auth_url: https://keycloak.diegofnunesbr.com/realms/home/protocol/openid-connect/auth
     token_url: https://keycloak.diegofnunesbr.com/realms/home/protocol/openid-connect/token
