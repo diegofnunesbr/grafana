@@ -25,7 +25,8 @@ grafana/
 ├── applications/
 │   └── argocd.grafana.yaml     # Application multi-source do Argo CD
 ├── secrets/
-│   └── grafana-admin-secret.sealed.yaml  # senha do admin (selada, aplicada pelo Argo CD)
+│   ├── grafana-admin-secret.sealed.yaml  # senha do admin local (fallback, ver "Login pelo Keycloak")
+│   └── grafana-oidc.sealed.yaml          # client secret do Keycloak (selado, aplicado pelo Argo CD)
 ├── change-admin-password.sh    # troca a senha do admin
 ├── values.yaml                 # values do chart oficial grafana/grafana
 └── README.md
@@ -66,13 +67,36 @@ clone local - qualquer mudança em `values.yaml` só tem efeito depois de
 https://grafana.diegofnunesbr.com
 ```
 
-Login `admin` + senha da seção "Senha do admin". Certificado real
-(Let's Encrypt, renovado automaticamente pelo cert-manager) - sem porta
-na URL. Se precisar de acesso direto sem depender do Ingress/DNS (debug):
+Login pelo Keycloak (ver seção abaixo). Certificado real (Let's Encrypt,
+renovado automaticamente pelo cert-manager) - sem porta na URL. Se
+precisar de acesso direto sem depender do Ingress/DNS (debug):
 
 ```bash
 kubectl -n grafana port-forward svc/grafana 3000:80
 ```
+
+## Login pelo Keycloak (SSO)
+
+`values.yaml` configura `auth.generic_oauth` em `grafana.ini` apontando
+pro realm `home` do Keycloak (repositório `keycloak`,
+`https://keycloak.diegofnunesbr.com`). Quem estiver no grupo
+`grafana-admins` do Keycloak vira `Admin` no Grafana; todo mundo que
+logar entra como `Viewer` (`allow_sign_up: true`, `role_attribute_strict:
+false`).
+
+O client secret do Keycloak fica selado em
+`secrets/grafana-oidc.sealed.yaml` e chega no pod via variável de
+ambiente (`GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET`, `envValueFrom` do
+chart), que o `grafana.ini` referencia com `$GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET`
+- nunca fica em texto puro no `values.yaml`.
+
+Pra dar acesso a alguém: no Keycloak, realm `home`, coloque o usuário no
+grupo `grafana-admins` (ou em nenhum grupo, pra entrar só como `Viewer`).
+
+`oauth_auto_login: true` pula a tela de login e manda direto pro
+Keycloak. Se ele cair, use `https://grafana.diegofnunesbr.com/login?disableAutoLogin=true`
+pra chegar no formulário local (usuário `admin` + senha selada em
+`secrets/grafana-admin-secret.sealed.yaml`, seção "Senha do admin").
 
 ## Dashboards
 
