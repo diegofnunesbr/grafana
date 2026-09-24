@@ -87,8 +87,14 @@ false`).
 O client secret do Keycloak fica selado em
 `secrets/grafana-oidc.sealed.yaml` e chega no pod via variável de
 ambiente (`GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET`, `envValueFrom` do
-chart), que o `grafana.ini` referencia com `$GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET`
-- nunca fica em texto puro no `values.yaml`.
+chart), que o `grafana.ini` referencia com `${GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET}`
+- nunca fica em texto puro no `values.yaml`. **As chaves precisam** (senão o
+chart do Grafana recusa o `helm template` com "Sensitive key ... should
+not be defined explicitly").
+
+`signout_redirect_url` manda o "Sign out" do Grafana encerrar também a
+sessão no Keycloak (senão o `oauth_auto_login` loga de volta sozinho
+sem pedir nada) - o Grafana já anexa o `id_token_hint` sozinho.
 
 Pra dar acesso a alguém: no Keycloak, realm `home`, coloque o usuário no
 grupo `grafana-admins` (ou em nenhum grupo, pra entrar só como `Viewer`).
